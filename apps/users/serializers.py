@@ -40,3 +40,24 @@ class LoginSerializer(serializers.Serializer):
                 'email': user.email
             }
         raise serializers.ValidationError("Invalid email or password")
+    
+class UserProfileSerializer(serializers.ModelSerializer):
+    """Serializer for retrieving user's profile (GET)"""
+    
+    class Meta:
+        model = CustomUser
+        fields = ['email', 'first_name', 'last_name', 'role']  # Fields to retrieve
+
+class UserProfileUpdateSerializer(serializers.ModelSerializer):
+    """Serializer for updating user's profile (PUT)"""
+    
+    class Meta:
+        model = CustomUser
+        fields = ['first_name', 'last_name']  # Only allow updating first_name and last_name
+    
+    def update(self, instance, validated_data):
+        # Only update the fields provided in the request
+        instance.first_name = validated_data.get('first_name', instance.first_name)
+        instance.last_name = validated_data.get('last_name', instance.last_name)
+        instance.save()
+        return instance
