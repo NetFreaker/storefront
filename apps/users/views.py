@@ -1,7 +1,9 @@
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from rest_framework import status, generics
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.contrib.auth import logout
 from .serializers import UserSignupSerializer, LoginSerializer, UserProfileSerializer, UserProfileUpdateSerializer
@@ -24,42 +26,32 @@ class LoginView(generics.GenericAPIView):
             return Response(serializer.validated_data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-class CustomTokenRefreshView(RefreshToken):
+@method_decorator(csrf_exempt, name='dispatch')  # Disable CSRF for this specific view
+class CustomTokenRefreshView(TokenRefreshView):
     """Custom Token Refresh view to return both refresh and access tokens."""
-    
-    permission_classes = [IsAuthenticated]  # Ensure only authenticated users can access
 
-    @csrf_exempt  # Disable CSRF for this specific view
     def post(self, request, *args, **kwargs):
-        # Ensure the user is authenticated before proceeding
-        if not request.user.is_authenticated:
-            return Response({"detail": "Authentication credentials were not provided."}, status=status.HTTP_401_UNAUTHORIZED)
-        
-        # Call the original TokenRefreshView to validate and refresh the token
-        response = super().post(request, *args, **kwargs)
-        
         # Retrieve the refresh token from the request data
         refresh_token = request.data.get('refresh_token')
 
-        if refresh_token:
-            try:
-                # Create a new refresh token using the given refresh token
-                refresh = RefreshToken(refresh_token)
+        if not refresh_token:
+            return Response({"detail": "Refresh token is required."}, status=status.HTTP_400_BAD_REQUEST)
 
-                # Generate a new access token from the refresh token
-                access_token = refresh.access_token
+        try:
+            # Create a new refresh token using the given refresh token
+            refresh = RefreshToken(refresh_token)
 
-                # Return both the new refresh token and access token in the response
-                return Response({
-                    'access_token': str(access_token),
-                    'refresh_token': str(refresh)
-                }, status=status.HTTP_200_OK)
-            except Exception as e:
-                return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            # Generate a new access token from the refresh token
+            access_token = refresh.access_token
 
-        # If no refresh token is provided, use the default response
-        return response
-
+            # Return both the new refresh token and access token in the response
+            return Response({
+                'access_token': str(access_token),
+                'refresh_token': str(refresh)  # Provide new refresh token
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"detail": "Invalid refresh token."}, status=status.HTTP_400_BAD_REQUEST)
+        
 # API for user logout (Blacklists Refresh token)
 class LogoutView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]  # TODO: Lets discuss whether user should be loggedin or not required
