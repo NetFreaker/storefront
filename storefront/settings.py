@@ -25,8 +25,7 @@ SECRET_KEY = 'django-insecure-np37%e+jk#xz(rsf2@x*&9o+gorxd(6lu_gi3zhyzwp%)^uli8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '2897-47-147-135-27.ngrok-free.app']
 
 # Application definition
 
@@ -40,8 +39,11 @@ INSTALLED_APPS = [
 
      # Third-party apps
     'rest_framework',
+    'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',  # Enable token blacklist
 
+    # CORS
+    'corsheaders',
 
     # Local apps
     'apps.users'
@@ -55,7 +57,15 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # Frontend origin
+]
+
+# Optionally, allow credentials to be passed (for JWT authentication, you will need this)
+CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = 'storefront.urls'
 
