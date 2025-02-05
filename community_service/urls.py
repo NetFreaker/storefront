@@ -1,5 +1,5 @@
 """
-URL configuration for storefront project.
+URL configuration for community_service project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.1/topics/http/urls/
@@ -19,5 +19,5 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/users/', include('apps.users.urls'))
+    path('api/users/', include('apps.users.urls')),  # User authentication APIs
 ]
