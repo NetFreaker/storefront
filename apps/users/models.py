@@ -1,4 +1,4 @@
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
 
 # Custom user manager to handle user creation
@@ -56,7 +56,7 @@ class CustomUserManager(BaseUserManager):
 
 
 # Custom User model to replace the default Django User model
-class CustomUser(AbstractBaseUser):
+class CustomUser(AbstractBaseUser, PermissionsMixin):
     """
     Custom User model that extends AbstractBaseUser to support authentication using email 
     instead of the default username. It also includes custom fields like first_name, last_name, and role.

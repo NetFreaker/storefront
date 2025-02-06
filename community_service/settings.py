@@ -46,7 +46,9 @@ INSTALLED_APPS = [
     'corsheaders',
 
     # Local apps
-    'apps.users'
+    'apps.admin_panel',
+    'apps.users',
+    
 ]
 
 MIDDLEWARE = [
@@ -72,7 +74,10 @@ ROOT_URLCONF = 'community_service.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            BASE_DIR / 'templates',  # This will allow loading templates from a global templates folder
+            BASE_DIR / 'apps/admin_panel/templates',  # This will allow loading admin_panel templates
+            ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -84,6 +89,7 @@ TEMPLATES = [
         },
     },
 ]
+
 
 WSGI_APPLICATION = 'community_service.wsgi.application'
 
@@ -165,10 +171,14 @@ REST_FRAMEWORK = {
 from datetime import timedelta
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),  # Example: 15 minutes
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),  # Example: 1 day
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "ALGORITHM": "HS256",
-    "SIGNING_KEY": "your-secret-key",
+    "SIGNING_KEY": SECRET_KEY,
+    "VERIFYING_KEY": None,
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+    "TOKEN_BLACKLIST_ENABLED": True,
 }
