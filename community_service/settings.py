@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-np37%e+jk#xz(rsf2@x*&9o+gorxd(6lu_gi3zhyzwp%)^uli8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '185a-47-147-135-27.ngrok-free.app']
 
 # Application definition
 
@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     # Local apps
     'apps.admin_panel',
     'apps.users',
+    'apps.services',
     
 ]
 
@@ -155,6 +156,20 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+LOGIN_URL = "/admin_panel/login/"
+
+LOGIN_REDIRECT_URL = "/admin_panel/dashboard/"
+
+CSRF_COOKIE_SECURE = True
+
+CSRF_COOKIE_HTTPONLY = True
+
+CSRF_COOKIE_SAMESITE = "Lax"
+
+# LOGIN_URL = '/admin-panel/login/'  # Redirects unauthorized users
+# LOGIN_REDIRECT_URL = '/admin-panel/'  # Default redirect after login
+# LOGOUT_REDIRECT_URL = '/admin-panel/login/'  # Redirect after logout
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
@@ -163,8 +178,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'apps.users.authentication.JWTAuthenticationFromCookie',  # Custom JWT Cookie Authentication
     ),
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
 }
 
 # JWT Settings

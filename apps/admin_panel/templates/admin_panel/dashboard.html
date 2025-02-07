@@ -1,29 +1,7 @@
-{% extends 'admin_panel/base.html' %}
+{% extends "admin_panel/base.html" %}
 
 {% block content %}
-    <h1>Welcome to the Admin Dashboard</h1>
-
-    <div class="dashboard-stats">
-        <div class="stat-item">
-            <h3>Total Users</h3>
-            <p>{{ total_users }}</p>
-        </div>
-        <div class="stat-item">
-            <h3>Total Services</h3>
-            <p>{{ total_services }}</p>
-        </div>
-        <div class="stat-item">
-            <h3>Total Categories</h3>
-            <p>{{ total_categories }}</p>
-        </div>
-    </div>
-
-    <div class="dashboard-actions">
-        <h2>Manage Sections</h2>
-        <ul>
-            <li><a href="{% url 'manage_categories' %}">Manage Categories</a></li>
-            <li><a href="{% url 'manage_services' %}">Manage Services</a></li>
-            <li><a href="{% url 'manage_users' %}">Manage Users</a></li>
-        </ul>
-    </div>
+<h2>Admin Dashboard</h2>
+<p>Welcome, {{ request.user.first_name }}!</p>
+<p>Manage the system from the navigation menu.</p>
 {% endblock %}

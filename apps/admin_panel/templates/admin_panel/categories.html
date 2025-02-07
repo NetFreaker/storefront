@@ -1,0 +1,18 @@
+{% extends "admin_panel/base.html" %}
+
+{% block content %}
+<h2>Categories</h2>
+<a href="{% url 'admin_create_category' %}" class="btn">Add New Category</a>
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    {% for category in categories %}
+    <tr>
+        <td>{{ category.name }}</td>
+        <td>{{ category.description }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
