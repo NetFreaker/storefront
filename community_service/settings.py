@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-np37%e+jk#xz(rsf2@x*&9o+gorxd(6lu_gi3zhyzwp%)^uli8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '185a-47-147-135-27.ngrok-free.app']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'c66a-47-147-135-27.ngrok-free.app']
 
 # Application definition
 
@@ -160,11 +160,18 @@ LOGIN_URL = "/admin_panel/login/"
 
 LOGIN_REDIRECT_URL = "/admin_panel/dashboard/"
 
-CSRF_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
 
-CSRF_COOKIE_HTTPONLY = True
+# CSRF_COOKIE_HTTPONLY = True
 
-CSRF_COOKIE_SAMESITE = "Lax"
+# CSRF_COOKIE_SAMESITE = "Lax"
+
+# Enable CSRF Protection
+CSRF_TRUSTED_ORIGINS = ["http://localhost:3000"]  # Frontend URL
+CSRF_COOKIE_HTTPONLY = False  # CSRF Token must be readable by JS
+CSRF_COOKIE_SECURE = False  # Set to True in production (HTTPS required)
+SESSION_COOKIE_SAMESITE = "Lax"
+SESSION_COOKIE_SECURE = False
 
 # LOGIN_URL = '/admin-panel/login/'  # Redirects unauthorized users
 # LOGIN_REDIRECT_URL = '/admin-panel/'  # Default redirect after login

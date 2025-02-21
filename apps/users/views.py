@@ -1,4 +1,6 @@
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.middleware.csrf import get_token
+from django.contrib.auth.models import update_last_login
 from django.utils.decorators import method_decorator
 from django.conf import settings
 from rest_framework import status, generics, permissions
@@ -11,6 +13,15 @@ from django.contrib.auth import authenticate
 from apps.users.authentication import JWTAuthenticationFromCookie
 from .serializers import UserSignupSerializer, LoginSerializer, UserProfileSerializer, UserProfileUpdateSerializer
 
+class CSRFTokenView(APIView):
+    """API to get CSRF token for frontend"""
+
+    authentication_classes = []  # Disable authentication
+    permission_classes = [AllowAny]  # Allow all users (even unauthenticated)
+
+    def get(self, request):
+        return Response({"csrf_token": get_token(request)})
+
 # API for user signup (registration)
 class SignupView(generics.CreateAPIView):
     serializer_class = UserSignupSerializer
@@ -20,37 +31,47 @@ class SignupView(generics.CreateAPIView):
         serializer.save(role=role)
 
 # API for user login (returns JWT tokens)
+
 class LoginView(APIView):
-    """Login API that stores tokens in HTTP-only cookies"""
+    """Login API that sets JWT in cookies"""
 
     def post(self, request):
         email = request.data.get("email")
         password = request.data.get("password")
 
         user = authenticate(email=email, password=password)
-        if not user:
-            return Response({"error": "Invalid credentials"}, status=401)
+        if user is None:
+            return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
         # Generate tokens
         refresh = RefreshToken.for_user(user)
         access_token = str(refresh.access_token)
+        refresh_token = str(refresh)
 
-        # Create response and set HTTP-only cookies
-        response = Response({"message": "Login successful"})
+        # Update last login
+        update_last_login(None, user)
+
+        # Prepare response
+        response = Response({"message": "Login successful"}, status=status.HTTP_200_OK)
+
+        # Set HttpOnly cookies
         response.set_cookie(
             key="access_token",
             value=access_token,
             httponly=True,
-            secure=settings.DEBUG is False,  # Set to True in production (HTTPS)
+            secure=settings.SECURE_COOKIE,  # Use True in production
             samesite="Lax",
         )
         response.set_cookie(
             key="refresh_token",
-            value=str(refresh),
+            value=refresh_token,
             httponly=True,
-            secure=settings.DEBUG is False,
+            secure=settings.SECURE_COOKIE,
             samesite="Lax",
         )
+
+        # Set CSRF Token in response
+        response.data["csrf_token"] = get_token(request)
         return response
     
 # @method_decorator(csrf_exempt, name='dispatch')  # Disable CSRF for this specific view
